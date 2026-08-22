@@ -1,0 +1,96 @@
+# SIGNAL — a field trainer for the flags of the world
+
+SIGNAL is a mobile-first flag-memorization app: **197 sovereign countries** plus a dedicated **US states & territories** deck. It teaches flags in families that share colours and meaning, drills them with spaced repetition, and tracks mastery on a world map. It runs entirely in the browser with no backend — all progress is saved on-device.
+
+Two builds ship together:
+- **`index.html`** — the self-contained standalone (React bundled in). This is the one to host (e.g., GitHub Pages) and install to a phone via "Add to Home Screen".
+- **`SignalFlagTrainer.jsx`** — the same app as a single React component.
+
+---
+
+## The tabs
+
+**Learn** — Start here. A **Daily Review** card sits at the top (see Spaced repetition). Below it you can browse any region, read each flag's hook, history and standout fact, or run a guided **learning round** that teaches each flag then quizzes you.
+
+**Traps** — The 27 classic confusion pairs (Chad/Romania, Ireland/Côte d'Ivoire, Monaco/Indonesia…) with the specific tell that separates each one.
+
+**Drill** — Timed quizzing with five game modes (below), any scope, either direction (flag→name or name→flag).
+
+**Scores** — Per-region leaderboards for Classic runs.
+
+**Activity** — Every timed run, newest first. Tap one for a full analytics breakdown.
+
+**Progress** — Your rank, the mastery world map, per-region distribution, and achievements.
+
+**More** — Two supplementary decks with browse + quiz: **US States** (all 50 states, DC and 5 US territories) and **World Dependencies** (30 inhabited territories with distinct flags). Each tracks its own mastery, separate from the sovereign-country stats.
+
+---
+
+## Game modes (Drill tab)
+
+- **Classic** — Every flag in your scope once, against the clock. Posts to the leaderboard. Ends with a full analytics report.
+- **⚡ Blitz** — 60-second arcade run. Answers auto-advance; a **combo multiplier** (×1.5 → ×2 → ×3) and a **speed bonus** stack your score. Tracks a personal best per scope.
+- **♥ Survival** — Sudden death. One wrong answer ends the run — how far can you get?
+- **🎲 Wager** — Bet 1–3 points on each answer before you commit. Right pays your bet, wrong costs it, and it builds a lifetime **calibration** profile (are your high-confidence calls actually more accurate?).
+- **⌨️ Type** — Free recall. Type the country; a live autocomplete narrows as you go, and **close spellings and common aliases still count** (USA, UK, UAE, Ivory Coast, Swaziland…), while keeping Niger and Nigeria distinct.
+
+**Scope** can be a single area (continent or subregion) or a **Custom mix** — check any combination of areas to drill together (e.g., Americas + Asia). Custom and arcade modes keep their own bests and don't post to the Classic leaderboard.
+
+---
+
+## Mastery ladder
+
+Each flag climbs a ladder based on **consecutive correct answers**, and a miss breaks the streak:
+
+| Level | Requirement |
+|---|---|
+| New | never seen |
+| Learning | seen, 1–2 in a row |
+| Familiar | 3–4 in a row |
+| **Learned** | **5 in a row** |
+| **Mastered** | **10 in a row** |
+
+Every answer everywhere — drills, learning rounds, daily review, all game modes, and the States deck — feeds this ladder.
+
+## Spaced repetition + daily streak
+
+Each flag has a review interval that grows as its streak climbs (1 → 2 → 4 → 7 → 14 → … → 90 days) and resets to tomorrow on a miss. The **Daily Review** surfaces only what's due today plus a few new flags. A **🔥 day-streak** in the header counts consecutive days of practice, with one **❄️ freeze** (auto-earned every 7 days) that bridges a single missed day.
+
+## Progress dashboard
+
+- **Rank + XP** — Nine naval ranks (Cadet → Vexillologist). XP is derived from your best-ever tier per flag plus lifetime correct answers, so it only ever climbs.
+- **Mastery world map** — A real Equal-Earth projection where every country fills in with its mastery colour; microstates too small to draw appear as dots. Tap any country for its status.
+- **By region** — Stacked bars showing the mastery mix within each continent.
+- **Achievements** — 12 badges (First Flag, Century, Trap Breaker, Continental, Grandmaster, Flawless, No Hints, Week Warrior, Month Strong, …).
+
+## Analytics (per run)
+
+Classic runs end with, and are re-openable from Activity: fastest/slowest answer, average time when right vs wrong, a per-question time chart, every miss with a targeted "how to tell them apart" tip, and the subregions to review.
+
+---
+
+## Content
+
+- **World:** 197 sovereign states. Each has a family, a distinctive tell, a memory hook, a one-line meaning, a flag history, subregion, and a **standout fact** (the "only flag that…" / "one of N…" hooks).
+- **US deck:** 50 states + DC + 5 territories (American Samoa, Guam, Northern Mariana Islands, Puerto Rico, US Virgin Islands), each with a short distinctive tell.
+- **World dependencies:** 30 inhabited territories with their own distinct flags — British (Bermuda, Cayman, Gibraltar, Falklands, BVI, Turks & Caicos, Anguilla, Montserrat, St Helena, Isle of Man, Jersey, Guernsey, Pitcairn), Dutch (Aruba, Curaçao, Sint Maarten), Danish (Greenland, Faroe), French Pacific (New Caledonia, French Polynesia), Chinese SARs (Hong Kong, Macao), Åland, Western Sahara, and the Pacific/Indian-Ocean islands (Cook Islands, Niue, Tokelau, Norfolk, Christmas, Cocos). Territories that just fly their parent country's flag are excluded.
+- Country flags are inline SVG where light, WebP where the coat-of-arms detail is heavy; the map is pre-projected to static paths so no map library ships at runtime.
+
+## Data & storage
+
+All state is in the browser via a small key-value store (localStorage in the standalone):
+- `flagtrainer:v1:progress` — world mastery
+- `flagtrainer:v1:states` — US-deck mastery
+- `flagtrainer:v1:territories` — dependencies-deck mastery
+- `flagtrainer:v1:scores` — runs (leaderboards + Activity)
+- `flagtrainer:v1:meta` — day-streak, arcade/survival bests, wager calibration
+
+Deleting progress or clearing site data resets everything.
+
+## Not included (would need a backend)
+
+Shared/social leaderboards, challenging friends, and reliable streak push-notifications all require a server; everything above is fully local.
+
+## Build
+
+Source lives in `component.jsx` (app), `data.js` (countries), `states.js` / `territories.js` (extra decks), `flags.json` / `state_flags.json` / `territory_flags.json` (flag art), and `map.json` (pre-projected map). Assembly concatenates these into `SignalFlagTrainer.jsx`, esbuild bundles it, and `build_html.js` inlines everything into the standalone `index.html`.
